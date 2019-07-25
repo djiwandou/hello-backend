@@ -30,7 +30,8 @@ func checkURL(w http.ResponseWriter, r *http.Request) {
     } else {
         r.ParseForm()
         // logic part of log in
-        fmt.Println("url_input:", r.Form["url_input"])        
+		fmt.Println("url_input:", r.Form["url_input"])        
+		fmt.Fprintf(w, "url_input: %v\n", r.Form["url_input"]) // write data to response
     }
 }
 
