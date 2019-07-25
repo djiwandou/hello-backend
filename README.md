@@ -8,5 +8,8 @@ How to run:
 http://localhost:9090/ 
 check server response by typing this in browser
 
+http://localhost:9090/checkurl 
+show web form where you can Input URL to check
+
 http://localhost:9090/checkurl?url_input=https://schoters.com
 you can also directly put url_input to the url parameter
