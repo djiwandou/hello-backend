@@ -7,7 +7,8 @@ import (
     "net/http"
 	"strings"
 	"hello-backend/test"
-	"encoding/json"
+	// "encoding/json"
+	// "time"
 )
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
@@ -39,18 +40,13 @@ func checkURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func constructCheckup(w http.ResponseWriter, url_input string) {
-	jsonBytes := []byte(`{"checkers":[{"type":"http","endpoint_name":"Example (HTTP)","endpoint_url":"https://schoters.com","attempts":5}],"timestamp":"0001-01-01T00:00:00Z"}`)
-	fmt.Println("ConstructCheckup")
-	fmt.Printf("%v\n\n",url_input)
-	var c test.Checkup
-	err := json.Unmarshal(jsonBytes, &c)	
-
-	if err != nil {
-		fmt.Println("Error unmarshaling: %v", err)
-	}
-
-	hc := test.HTTPChecker{Name: "Test", URL: url_input, Attempts: 2}
+	
+	hc := test.HTTPChecker{Name: "Test", URL: url_input, Attempts: 5}
+	hc.ThresholdRTT = 0
 	result, err := hc.Check()	
+	if err != nil {
+		fmt.Println("Error checking: %v", err)
+	}
 	fmt.Fprintf(w, "URL input: %v\n", url_input) 
 	fmt.Fprintf(w, "\nResults: %v\n", result) 
 }

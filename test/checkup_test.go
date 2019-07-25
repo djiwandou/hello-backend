@@ -9,61 +9,6 @@ import (
 	"time"
 )
 
-// func TestCheckAndStore(t *testing.T) {
-// 	fmt.Println("MASUKTEST")
-// 	f := new(fake)
-// 	fmt.Printf("%v\n",f)
-// 	c := Checkup{
-// 		Checkers:         []Checker{f, f},
-// 		ConcurrentChecks: 1,
-// 		Timestamp:        time.Now(),
-// 	}
-
-// 	err := c.CheckAndStore()
-// 	if err != nil {
-// 		t.Errorf("Didn't expect an error: %v", err)
-// 	}
-// 	if got, want := f.checked, 2; got != want {
-// 		t.Errorf("Expected %d checks to be executed, but had: %d", want, got)
-// 	}	
-
-// 	// Check error handling
-// 	f.returnErr = true
-// 	err = c.CheckAndStore()
-// 	if err == nil {
-// 		t.Error("Expected an error, didn't get one")
-// 	}
-// 	if got, want := err.Error(), "i'm an error; i'm an error"; got != want {
-// 		t.Errorf(`Expected error string "%s" but got: "%s"`, want, got)
-// 	}
-
-// 	c.ConcurrentChecks = -1
-// 	_, err = c.Check()
-// 	if err == nil {
-// 		t.Error("Expected an error with ConcurrentChecks < 0, didn't get one")
-// 	}
-// 	c.ConcurrentChecks = 0
-	
-// 	err = c.CheckAndStore()
-// 	if err == nil {
-// 		t.Error("Expected an error with no storage, didn't get one")
-// 	}
-// }
-
-// func TestCheckAndStoreEvery(t *testing.T) {
-// 	f := new(fake)
-// 	c := Checkup{Checkers: []Checker{f}}
-// 	fmt.Println("EVERY")
-
-// 	ticker := c.CheckAndStoreEvery(50 * time.Millisecond)
-// 	time.Sleep(170 * time.Millisecond)
-// 	ticker.Stop()
-
-// 	if got, want := f.checked, 3; got != want {
-// 		t.Errorf("Expected %d checks while sleeping, had: %d", want, got)
-// 	}
-// }
-
 func TestComputeStats(t *testing.T) {
 	s := Result{Times: []Attempt{
 		{RTT: 7 * time.Second},

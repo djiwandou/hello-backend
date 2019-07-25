@@ -82,6 +82,9 @@ func (c HTTPChecker) Check() (Result, error) {
 
 	result := Result{Title: c.Name, Endpoint: c.URL, Timestamp: Timestamp()}
 	req, err := http.NewRequest("GET", c.URL, nil)
+	fmt.Println("CHECK-IN")
+	fmt.Printf("%v\n",c.URL)
+	fmt.Printf("%v\n\n",Timestamp())
 	if err != nil {
 		return result, err
 	}
@@ -126,6 +129,7 @@ func (c HTTPChecker) doChecks(req *http.Request) Attempts {
 // the conclusion about the result's status.
 func (c HTTPChecker) conclude(result Result) Result {
 	result.ThresholdRTT = c.ThresholdRTT
+	fmt.Printf("\n\n")
 	fmt.Println("CONCLUDE1")
 	fmt.Printf("%v\n",c)
 	// Check errors (down)
