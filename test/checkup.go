@@ -140,6 +140,16 @@ func (c Checkup) CheckAndStoreEvery(interval time.Duration) *time.Ticker {
 	return ticker
 }
 
+func (c Checkup) IntervalRun(interval time.Duration) *time.Ticker {
+	ticker := time.NewTicker(interval)
+	go func() {
+		for range ticker.C {
+			fmt.Println("TestTicker");
+		}
+	}()
+	return ticker
+}
+
 // MarshalJSON marshals c into JSON with type information
 // included on the interface values.
 func (c Checkup) MarshalJSON() ([]byte, error) {

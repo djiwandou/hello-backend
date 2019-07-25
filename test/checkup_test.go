@@ -69,6 +69,7 @@ func TestCheckAndStore(t *testing.T) {
 func TestCheckAndStoreEvery(t *testing.T) {
 	f := new(fake)
 	c := Checkup{Storage: f, Checkers: []Checker{f}}
+	fmt.Println("EVERY")
 
 	ticker := c.CheckAndStoreEvery(50 * time.Millisecond)
 	time.Sleep(170 * time.Millisecond)
@@ -182,8 +183,15 @@ func TestJSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error unmarshaling: %v", err)
 	}
+	fmt.Printf("\n")
+	fmt.Println("TestJSON")
+	jsonMap := make(map[string]interface{})	
+	fmt.Printf("%v\n\n", jsonMap)
 
 	result, err := json.Marshal(c)
+	// jsonData, err := json.MarshalIndent(c, "", "    ")
+	// fmt.Printf("%v\n\n", string(jsonData))
+	
 	if err != nil {
 		t.Fatalf("Error marshaling: %v", err)
 	}

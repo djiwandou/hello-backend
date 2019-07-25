@@ -5,7 +5,9 @@ import (
     "html/template"
     "log"
     "net/http"
-    "strings"
+	"strings"
+	"hello-backend/test"
+	"encoding/json"
 )
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
@@ -29,14 +31,29 @@ func checkURL(w http.ResponseWriter, r *http.Request) {
         t.Execute(w, nil)
     } else {
         r.ParseForm()
-        // logic part of log in
-		fmt.Println("url_input:", r.Form["url_input"])        
+		// logic part of check URL
+		url_input := r.Form["url_input"][0]
+		fmt.Println("url_input:", r.Form["url_input"])    
+		constructCheckup(url_input)    
 		fmt.Fprintf(w, "url_input: %v\n", r.Form["url_input"]) // write data to response
     }
 }
 
+func constructCheckup(url_input string) {
+	jsonBytes := []byte(`{"checkers":[{"type":"http","endpoint_name":"Example (HTTP)","endpoint_url":"https://schoters.com","attempts":5}],"timestamp":"0001-01-01T00:00:00Z"}`)
+	fmt.Println("ConstructCheckup")
+	fmt.Printf("%v\n\n",url_input)
+	var c test.Checkup
+	err := json.Unmarshal(jsonBytes, &c)	
+
+	if err != nil {
+		fmt.Println("Error unmarshaling: %v", err)
+	}
+}
+
 func main() {
 	fmt.Println("Bismillah.. Hello GO")
+	
 	http.HandleFunc("/", sayhelloName)
 	http.HandleFunc("/checkurl", checkURL)
 	err := http.ListenAndServe(":9090", nil)
