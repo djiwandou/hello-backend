@@ -3,8 +3,7 @@ How to run:
 1. Clone the project to local go/src
 2. Go to project folder location in terminal
 3. cd cmd/main
-4. dep ensure
-5. go run main.go
+4. go run main.go
 
 http://localhost:9090/ 
 check server response by typing this in browser
