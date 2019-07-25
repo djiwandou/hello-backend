@@ -34,17 +34,6 @@ type Checkup struct {
 	// be a few milliseconds or seconds apart.
 	Timestamp time.Time `json:"timestamp,omitempty"`
 
-	// Storage is the storage mechanism for saving the
-	// results of checks. Required if calling Store().
-	// If Storage is also a Maintainer, its Maintain()
-	// method will be called by c.CheckAndStore().
-	Storage Storage `json:"storage,omitempty"`
-
-	// Notifier is a notifier that will be passed the
-	// results after checks from all checkers have
-	// completed. Notifier may evaluate and choose to
-	// send a notification of potential problems.
-	Notifier Notifier `json:"notifier,omitempty"`
 }
 
 // Check performs the health checks. An error is only
@@ -86,12 +75,6 @@ func (c Checkup) Check() ([]Result, error) {
 		return results, errs
 	}
 
-	if c.Notifier != nil {
-		err := c.Notifier.Notify(results)
-		if err != nil {
-			return results, err
-		}
-	}
 
 	return results, nil
 }
@@ -102,23 +85,7 @@ func (c Checkup) Check() ([]Result, error) {
 // is nil. If c.Storage is also a Maintainer, Maintain()
 // will be called if Store() is successful.
 func (c Checkup) CheckAndStore() error {
-	if c.Storage == nil {
-		return fmt.Errorf("no storage mechanism defined")
-	}
-	results, err := c.Check()
-	if err != nil {
-		return err
-	}
-
-	err = c.Storage.Store(results)
-	if err != nil {
-		return err
-	}
-
-	if m, ok := c.Storage.(Maintainer); ok {
-		return m.Maintain()
-	}
-
+	
 	return nil
 }
 
@@ -220,8 +187,7 @@ func (c *Checkup) UnmarshalJSON(b []byte) error {
 	// collecting the raw JSON
 	raw := struct {
 		Checkers []json.RawMessage `json:"checkers"`
-		Storage  json.RawMessage   `json:"storage"`
-		Notifier json.RawMessage   `json:"notifier"`
+		
 	}{}
 	err := json.Unmarshal([]byte(b), &raw)
 	if err != nil {
@@ -233,15 +199,7 @@ func (c *Checkup) UnmarshalJSON(b []byte) error {
 		Checkers []struct {
 			Type string `json:"type"`
 		}
-		Storage struct {
-			Provider string `json:"provider"`
-		}
-		Notifier struct {
-			Name     string `json:"name"`
-			Username string `json:"username"`
-			Channel  string `json:"channel"`
-			Webhook  string `json:"webhook"`
-		}
+		
 	}{}
 	err = json.Unmarshal([]byte(b), &types)
 	if err != nil {
@@ -273,35 +231,6 @@ func (c *Checkup) UnmarshalJSON(b []byte) error {
 // Checker can create a Result.
 type Checker interface {
 	Check() (Result, error)
-}
-
-// Storage can store results.
-type Storage interface {
-	Store([]Result) error
-}
-
-// StorageReader can read results from the Storage.
-type StorageReader interface {
-	// Fetch returns the contents of a check file.
-	Fetch(checkFile string) ([]Result, error)
-	// GetIndex returns the storage index, as a map where keys are check
-	// result filenames and values are the associated check timestamps.
-	GetIndex() (map[string]int64, error)
-}
-
-// Maintainer can maintain a store of results by
-// deleting old check files that are no longer
-// needed or performing other required tasks.
-type Maintainer interface {
-	Maintain() error
-}
-
-// Notifier can notify ops or sysadmins of
-// potential problems. A Notifier should keep
-// state to avoid sending repeated notices
-// more often than the admin would like.
-type Notifier interface {
-	Notify([]Result) error
 }
 
 // DefaultConcurrentChecks is how many checks,
@@ -517,52 +446,4 @@ func (e Errors) Empty() bool {
 		}
 	}
 	return true
-}
-
-// Provisioner is a type of storage mechanism that can
-// provision itself for use with checkup. Provisioning
-// need only happen once and is merely a convenience
-// so that the user can get up and running with their
-// status page more quickly. Presumably, the info
-// returned from Provision should be used on the status
-// page side of things ot access the check files (like
-// a key pair that is used for read-only access).
-type Provisioner interface {
-	Provision() (ProvisionInfo, error)
-}
-
-// ProvisionInfo contains the results of provisioning a new
-// storage facility for check files. Its values should be
-// used by the status page in order to obtain read-only
-// access to the check files.
-type ProvisionInfo struct {
-	// The ID of a user that was created for accessing checks.
-	UserID string `json:"user_id"`
-
-	// The username of a user that was created for accessing checks.
-	Username string `json:"username"`
-
-	// The ID or name of the ID/key used to access checks. Expect
-	// this value to be made public. (It should have read-only
-	// access to the checks.)
-	PublicAccessKeyID string `json:"public_access_key_id"`
-
-	// The "secret" associated with the PublicAccessKeyID, but
-	// expect this value to be made public. (It should provide
-	// read-only access to the checks.)
-	PublicAccessKey string `json:"public_access_key"`
-}
-
-// String returns the information in i in a human-readable format
-// along with an important notice.
-func (i ProvisionInfo) String() string {
-	s := "Provision successful\n\n"
-	s += fmt.Sprintf("             User ID: %s\n", i.UserID)
-	s += fmt.Sprintf("            Username: %s\n", i.Username)
-	s += fmt.Sprintf("Public Access Key ID: %s\n", i.PublicAccessKeyID)
-	s += fmt.Sprintf("   Public Access Key: %s\n\n", i.PublicAccessKey)
-	s += `IMPORTANT: Copy the Public Access Key ID and Public Access
-Key into the config.js file for your status page. You will
-not be shown these credentials again.`
-	return s
 }

@@ -33,13 +33,12 @@ func checkURL(w http.ResponseWriter, r *http.Request) {
         r.ParseForm()
 		// logic part of check URL
 		url_input := r.Form["url_input"][0]
-		fmt.Println("url_input:", r.Form["url_input"])    
-		constructCheckup(url_input)    
-		fmt.Fprintf(w, "url_input: %v\n", r.Form["url_input"]) // write data to response
+		fmt.Println("url_input:", url_input)    
+		constructCheckup(w, url_input)    		
     }
 }
 
-func constructCheckup(url_input string) {
+func constructCheckup(w http.ResponseWriter, url_input string) {
 	jsonBytes := []byte(`{"checkers":[{"type":"http","endpoint_name":"Example (HTTP)","endpoint_url":"https://schoters.com","attempts":5}],"timestamp":"0001-01-01T00:00:00Z"}`)
 	fmt.Println("ConstructCheckup")
 	fmt.Printf("%v\n\n",url_input)
@@ -49,6 +48,11 @@ func constructCheckup(url_input string) {
 	if err != nil {
 		fmt.Println("Error unmarshaling: %v", err)
 	}
+
+	hc := test.HTTPChecker{Name: "Test", URL: url_input, Attempts: 2}
+	result, err := hc.Check()	
+	fmt.Fprintf(w, "URL input: %v\n", url_input) 
+	fmt.Fprintf(w, "\nResults: %v\n", result) 
 }
 
 func main() {
